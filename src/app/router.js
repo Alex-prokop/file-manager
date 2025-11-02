@@ -4,7 +4,9 @@ import { commands } from './command-registry.js';
 import { invalidInput } from '../io/errors.js';
 import * as nwd from '../services/nwd.js';
 import * as fso from '../services/fs-basic.js';
-
+import * as osInfo from '../services/os-info.js';
+import * as hasher from '../services/hash.js';
+import * as arch from '../services/archive.js';
 
 async function notImplemented() {
     throw invalidInput();
@@ -20,9 +22,9 @@ const handlers = {
         cat: fso.cat, add: fso.add, mkdir: fso.mkdir,
         rn: fso.rn,  cp: fso.cp,  mv: fso.mv, rm: fso.rm,
     },
-    os:  { os: notImplemented },
-    hash:{ hash: notImplemented },
-    zip: { compress: notImplemented, decompress: notImplemented },
+    os:  { os: osInfo.osInfo },
+    hash:{ hash: hasher.hash },
+    zip: { compress: arch.compress, decompress: arch.decompress },
 };
 
 function validateArgs(cmd, spec, args) {
@@ -35,10 +37,9 @@ function validateArgs(cmd, spec, args) {
     return false;
 }
 
-
-
 export async function dispatch(raw, session) {
     if (!raw) return;
+
     const tokens = tokenize(raw);
     if (tokens.__unclosedQuote) { printInvalidInput(); return; }
     const [cmd, ...rest] = tokens;
