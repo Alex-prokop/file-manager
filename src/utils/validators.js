@@ -19,7 +19,7 @@ export async function ensureNotExists(p) {
         await fs.lstat(p);
         throw new Error('already exists');
     } catch (e) {
-        if (e && e.code === 'ENOENT') return; // ок: не существует
+        if (e && e.code === 'ENOENT') return;
         throw e;
     }
 }

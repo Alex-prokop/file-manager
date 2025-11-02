@@ -23,10 +23,15 @@ export async function startRepl(session) {
                 break;
             }
 
-            await dispatch(raw, session);
+            rl.pause();
 
-            printCwd(session.cwd);
-            rl.prompt();
+            try {
+                await dispatch(raw, session);
+            } finally {
+                printCwd(session.cwd);
+                rl.resume();
+                rl.prompt();
+            }
         }
     } finally {
         process.off('SIGINT', onSigint);

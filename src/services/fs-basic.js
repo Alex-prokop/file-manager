@@ -13,7 +13,21 @@ export async function cat(session, [filePath]) {
         await ensureFile(abs);
 
         const rs = fss.createReadStream(abs, { encoding: 'utf8' });
-        await pipeline(rs, process.stdout);
+
+        await new Promise((resolve, reject) => {
+            rs.on('data', (chunk) => {
+                const ok = process.stdout.write(chunk);
+                if (!ok) {
+                    rs.pause();
+                    process.stdout.once('drain', () => rs.resume());
+                }
+            });
+            rs.on('end', () => {
+                process.stdout.write('\n');
+                resolve();
+            });
+            rs.on('error', reject);
+        });
     } catch {
         throw operationFailed();
     }
@@ -21,11 +35,13 @@ export async function cat(session, [filePath]) {
 
 export async function add(session, [name]) {
     try {
+        if (!name || name.includes('/') || name.includes('\\')) throw operationFailed();
+
         const target = path.resolve(session.cwd, name);
         if (!isInsideRoot(target, session.root)) throw operationFailed();
         await ensureNotExists(target);
 
-        const fh = await fs.open(target, 'wx'); // fail if exists
+        const fh = await fs.open(target, 'wx');
         await fh.close();
     } catch {
         throw operationFailed();
@@ -34,6 +50,8 @@ export async function add(session, [name]) {
 
 export async function mkdir(session, [name]) {
     try {
+        if (!name || name.includes('/') || name.includes('\\')) throw operationFailed();
+
         const target = path.resolve(session.cwd, name);
         if (!isInsideRoot(target, session.root)) throw operationFailed();
         await fs.mkdir(target, { recursive: false });
@@ -44,6 +62,10 @@ export async function mkdir(session, [name]) {
 
 export async function rn(session, [filePath, newName]) {
     try {
+        if (!newName || newName.includes('/') || newName.includes('\\')) {
+            throw operationFailed();
+        }
+
         const src = resolveWithin(session, filePath);
         if (!isInsideRoot(src, session.root)) throw operationFailed();
         await ensureFile(src);

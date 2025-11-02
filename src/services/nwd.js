@@ -16,7 +16,6 @@ export async function up(session) {
 export async function cd(session, [targetPath]) {
     try {
         const abs = resolveWithin(session, targetPath);
-        //!! пока  не  уходит за root и не меняет диск на Windows
         if (!isInsideRoot(abs, session.root)) throw operationFailed();
 
         await ensureDir(abs);
