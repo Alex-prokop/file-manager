@@ -1,5 +1,6 @@
 import os from 'node:os';
 import path from 'node:path';
+import { isInsideRoot } from '../utils/pathing.js';
 
 export function createSession({ username }) {
     const cwd = os.homedir();
@@ -10,7 +11,7 @@ export function createSession({ username }) {
         cwd,
         root,
         setCwd(next) {
-            this.cwd = next;
+            if (isInsideRoot(next, root))   this.cwd = next;
         }
     };
 }

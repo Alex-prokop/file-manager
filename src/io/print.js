@@ -17,3 +17,7 @@ export function printInvalidInput() {
 export function printOperationFailed() {
     console.log('Operation failed');
 }
+
+export function printDirList(rows) {
+    console.table(rows.map(r => ({ Name: r.name, Type: r.type })));
+}

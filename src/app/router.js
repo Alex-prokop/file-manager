@@ -2,6 +2,9 @@ import { printInvalidInput,printOperationFailed } from '../io/print.js';
 import { tokenize } from '../cli/tokenize.js';
 import { commands } from './command-registry.js';
 import { invalidInput } from '../io/errors.js';
+import * as nwd from '../services/nwd.js';
+import * as fso from '../services/fs-basic.js';
+
 
 async function notImplemented() {
     throw invalidInput();
@@ -9,13 +12,13 @@ async function notImplemented() {
 
 const handlers = {
     nwd: {
-        up: notImplemented,
-        cd: notImplemented,
-        ls: notImplemented,
+        up: nwd.up,
+        cd: nwd.cd,
+        ls: nwd.ls,
     },
     fs: {
-        cat: notImplemented, add: notImplemented, mkdir: notImplemented,
-        rn: notImplemented,  cp: notImplemented,  mv: notImplemented, rm: notImplemented,
+        cat: fso.cat, add: fso.add, mkdir: fso.mkdir,
+        rn: fso.rn,  cp: fso.cp,  mv: fso.mv, rm: fso.rm,
     },
     os:  { os: notImplemented },
     hash:{ hash: notImplemented },
